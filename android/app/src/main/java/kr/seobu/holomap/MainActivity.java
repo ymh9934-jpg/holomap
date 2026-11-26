@@ -22,6 +22,10 @@ public class MainActivity extends Activity {
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false);
+        // 길게 누르기를 안드로이드가 가로채지 않고 화면(웹)이 받도록
+        web.setLongClickable(false);
+        web.setOnLongClickListener(v -> true);
+        web.setHapticFeedbackEnabled(false);
         setContentView(web);
         web.loadUrl("file:///android_asset/index.html");
         hideBars();

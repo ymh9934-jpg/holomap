@@ -12,12 +12,14 @@ html,body{width:100%;height:100%;overflow:hidden;color:var(--ink);
  background:radial-gradient(ellipse at 45% 40%,#fffdf9 0%,var(--bg1) 45%,var(--bg2) 100%);
  font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Samsung Sans",sans-serif}
 #gl{position:fixed;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
-#head{position:fixed;top:26px;left:32px;display:flex;align-items:center;gap:14px;pointer-events:none}
-.logo{width:46px;height:46px;border-radius:6px;overflow:hidden;position:relative;background:linear-gradient(var(--sky) 0 58%,var(--leaf) 58% 100%)}
+#head{position:fixed;top:26px;left:32px;display:flex;align-items:center;gap:14px}
+.logo{width:46px;height:46px;border-radius:6px;overflow:hidden;position:relative;flex:none;background:linear-gradient(var(--sky) 0 58%,var(--leaf) 58% 100%)}
 .logo:before{content:"";position:absolute;left:50%;top:8px;bottom:8px;width:4px;margin-left:-2px;background:#fff;border-radius:2px}
 .logo:after{content:"";position:absolute;left:11px;right:11px;top:17px;height:4px;background:#fff;border-radius:2px}
 #head small{display:block;font-size:13px;color:var(--sub);letter-spacing:.04em}
 #head b{display:block;font-size:28px;font-weight:800;letter-spacing:-.01em}
+#head .ring{position:absolute;left:-6px;top:-6px;width:58px;height:58px;border-radius:12px;border:3px solid var(--sky);opacity:0;transform:scale(.8);transition:opacity .2s}
+#head.press .ring{opacity:1;transform:scale(1);transition:opacity .2s,transform 1.2s linear}
 #floors{position:fixed;right:30px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
 .fb{width:210px;padding:12px 16px;border:0;background:rgba(255,255,255,.85);color:var(--ink);font-size:16px;text-align:left;
  border-radius:14px;font-family:inherit;display:flex;align-items:center;gap:12px;white-space:nowrap;
@@ -54,63 +56,129 @@ html,body{width:100%;height:100%;overflow:hidden;color:var(--ink);
 #intro p{font-size:21px;color:var(--sub);margin:14px 0 40px}
 #start{padding:18px 56px;font-size:21px;font-weight:700;color:#fff;background:var(--sky);border:0;border-radius:40px;font-family:inherit;
  box-shadow:0 10px 28px rgba(47,134,200,.35)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ===== 설계도 편집기 ===== */
+#ed{position:fixed;inset:0;background:#f7f3ec;display:flex;flex-direction:column;z-index:10;transition:opacity .3s}
+#ed.hide{opacity:0;pointer-events:none}
+.edtop{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#fff;box-shadow:0 2px 10px rgba(80,60,30,.08)}
+.edtop>b{font-size:20px;font-weight:800;margin-right:8px;white-space:nowrap}
+#edTabs{display:flex;gap:6px}
+.tab{min-width:56px;height:44px;border:0;border-radius:12px;background:#f1ebe1;color:var(--ink);font:700 17px/1 inherit;font-family:inherit}
+.tab.on{background:var(--sky);color:#fff}
+.sp{flex:1}
+.btn{height:44px;padding:0 18px;border:0;border-radius:12px;background:#f1ebe1;color:var(--ink);font-size:16px;font-weight:600;font-family:inherit;white-space:nowrap}
+.btn.pri{background:var(--sky);color:#fff}
+.btn.warn{background:#fbe4e1;color:#b8402f}
+.btn:disabled{opacity:.4}
+.edmain{flex:1;display:flex;min-height:0}
+.edcv{flex:1;position:relative;min-width:0}
+#edSvg{position:absolute;inset:12px 12px 40px;width:calc(100% - 24px);height:calc(100% - 52px);touch-action:none}
+.edhint{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-size:14px;color:var(--sub)}
+#edSide{width:360px;flex:none;background:#fff;padding:20px;overflow-y:auto;box-shadow:-2px 0 10px rgba(80,60,30,.06);user-select:text;-webkit-user-select:text}
+#edSide h3{font-size:22px;font-weight:800;margin-bottom:14px}
+#edSide label{display:block;font-size:14px;font-weight:700;color:var(--sub);margin:14px 0 6px}
+#edSide input[type=text],#edSide select,#edSide textarea{width:100%;font-size:17px;font-family:inherit;padding:10px 12px;border:1.5px solid #e3d8c6;border-radius:10px;background:#fffdf9;color:var(--ink)}
+#edSide textarea{min-height:110px;resize:vertical;line-height:1.5}
+#edSide input:focus,#edSide select:focus,#edSide textarea:focus{outline:none;border-color:var(--sky)}
+#edSide .row{display:flex;gap:8px;margin-top:18px;flex-wrap:wrap}
+#edSide .chk{display:flex;align-items:center;gap:10px;font-size:16px;color:var(--ink);font-weight:500;margin-top:16px}
+#edSide .chk input{width:22px;height:22px}
+#edSide .size{font-size:14px;color:var(--sub);margin-top:10px}
+.rlist{display:flex;flex-direction:column;gap:6px}
+.ritem{display:flex;align-items:center;gap:10px;padding:10px 12px;border:0;border-radius:10px;background:#f7f3ec;font-size:16px;font-family:inherit;color:var(--ink);text-align:left}
+.ritem i{width:12px;height:12px;border-radius:3px;flex:none}
+.note{font-size:13px;color:var(--sub);line-height:1.55;margin-top:10px}
+#edSide hr{border:0;border-top:1px solid #eee5d8;margin:22px 0 6px}
 </style>
 </head>
 <body>
 <canvas id="gl"></canvas>
 <div id="labels"></div>
-<div id="head"><div class="logo"></div><div><small>SEOBU CHURCH</small><b>서부교회 안내도</b></div></div>
+<div id="head"><div class="logo"><span class="ring"></span></div><div><small>SEOBU CHURCH</small><b>서부교회 안내도</b></div></div>
 <div id="floors"></div>
 <div id="card"><button class="x" id="cardX">×</button><div class="f" id="cardF"></div><h2 id="cardT"></h2><p id="cardD"></p></div>
 <div id="hint">한 손가락으로 돌리고 · 두 손가락으로 확대 · 층이나 방을 눌러보세요</div>
 <div id="intro"><div class="logo"></div><h1>서부교회에 오신 것을<br>환영합니다</h1>
 <p>처음 오셨나요? 건물 곳곳을 한눈에 보여드릴게요</p><button id="start">둘러보기</button></div>
 
+<div id="ed" class="hide">
+  <div class="edtop"><b>설계도 편집</b><div id="edTabs"></div><span class="sp"></span>
+    <button class="btn" id="edUndo">되돌리기</button><button class="btn" id="edAdd">+ 방 추가</button>
+    <button class="btn" id="edClose">닫기</button><button class="btn pri" id="edSave">저장하고 보기</button></div>
+  <div class="edmain">
+    <div class="edcv"><svg id="edSvg" viewBox="-19.5 -13.5 39 27" preserveAspectRatio="xMidYMid meet"></svg>
+      <div class="edhint">방을 끌어서 옮기고, 선택한 방 모서리의 동그라미를 끌어서 크기를 바꿔요 · 점선은 아래층 배치예요</div></div>
+    <aside id="edSide"></aside>
+  </div>
+</div>
+
 <!--LIBS-->
 
 <script>
-/* ==== 건물 데이터 (여기만 고치면 안내도가 바뀝니다) ====
-   좌표: 건물을 위에서 본 평면. x는 -18(강단 쪽)~18(로비 쪽), z는 -12~12. 방은 [x0,z0,x1,z1]
-   kind: worship 예배, edu 교육, office 행정, welcome 새가족, youth 청년부, etc 기타 */
-const CORE=[ {n:'엘리베이터',r:[13,-12,18,-6],core:'ev'}, {n:'계단',r:[13,-6,18,-2],core:'st'} ];
-const FLOORS=[
+/* ==== 기본 설계도 ====
+   좌표: 건물을 위에서 본 평면. x는 -18(강단 쪽)~18(로비 쪽), z는 -12~12. 방은 r:[x0,z0,x1,z1] */
+const KINDS={
+ sanctuary:{t:'예배당',c:'#f2d49b',dot:'#d9a23c',wall:2.7},
+ worship:{t:'예배·찬양',c:'#f2d49b',dot:'#d9a23c'},
+ edu:{t:'교육·부서',c:'#cfe4f4',dot:'#2f86c8'},
+ office:{t:'사무·회의',c:'#e4e7ea',dot:'#8a96a3'},
+ welcome:{t:'새가족',c:'#ffd08a',dot:'#f08c00'},
+ youth:{t:'청년부',c:'#f5cde0',dot:'#e2609c'},
+ library:{t:'도서관',c:'#ebe0d0',dot:'#a87b4f'},
+ lobby:{t:'로비',c:'#f6f1e8',dot:'#a89c88',noWall:1},
+ wc:{t:'화장실',c:'#dbe9ea',dot:'#5aa3a8'},
+ etc:{t:'기타',c:'#ebe5da',dot:'#a89c88'},
+ park:{t:'주차장',c:'#d9d6d0',dot:'#8c877f',noWall:1},
+ ev:{t:'엘리베이터',c:'#cfc8bd',dot:'#8c877f',core:1},
+ st:{t:'계단',c:'#cfc8bd',dot:'#8c877f',core:1},
+ garden:{t:'정원',c:'#cfe3b0',dot:'#7fb53a',noWall:1},
+ void:{t:'뚫린 공간 (아래층이 보임)',c:'#ffffff',dot:'#bbb',isVoid:1}
+};
+const EV=()=>({n:'엘리베이터',r:[13,-12,18,-6],kind:'ev'}), ST=()=>({n:'계단',r:[13,-6,18,-2],kind:'st'});
+const DEFAULT_FLOORS=[
  {id:'1F',name:'1층',sub:'주차장',rooms:[
    {n:'주차장',r:[-18,-12,13,12],kind:'park',d:'차량은 1층 주차장에 세우시면 됩니다. 주차장 옆 엘리베이터로 3층 예배당까지 바로 올라가실 수 있어요.'},
-   {n:'출입구',r:[13,4,18,12],kind:'etc',d:'건물 출입구입니다.'}]},
+   {n:'출입구',r:[13,4,18,12],kind:'etc',d:'건물 출입구입니다.'},EV(),ST()]},
  {id:'2F',name:'2층',sub:'교육·행정',rooms:[
    {n:'유아부실',r:[-18,-12,-8,-2],kind:'edu',d:'유아부 아이들이 예배드리는 공간입니다.'},
    {n:'성가대실',r:[-8,-12,0,-2],kind:'worship',d:'성가대가 연습하고 준비하는 곳입니다.'},
    {n:'사무실',r:[0,-12,7,-2],kind:'office',d:'교회 행정 업무를 보는 사무실입니다. 궁금한 점은 이곳에 문의해 주세요.'},
-   {n:'화장실',r:[7,-12,13,-6],kind:'etc',d:'2층 화장실입니다.'},
+   {n:'화장실',r:[7,-12,13,-6],kind:'wc',d:'2층 화장실입니다.'},
    {n:'청소년부실',r:[-18,2,-5,12],kind:'edu',d:'중·고등부 청소년들이 모이는 공간입니다.'},
    {n:'당회실',r:[-5,2,4,12],kind:'office',d:'당회 모임이 열리는 회의실입니다.'},
-   {n:'교역자실',r:[4,2,13,12],kind:'office',d:'목사님과 교역자분들이 계시는 곳입니다.'}]},
+   {n:'교역자실',r:[4,2,13,12],kind:'office',d:'목사님과 교역자분들이 계시는 곳입니다.'},EV(),ST()]},
  {id:'3F',name:'3층',sub:'예배당·로비',rooms:[
-   {n:'예배당',r:[-18,-12,6,12],kind:'worship',sanctuary:1,d:'주일 예배가 드려지는 본당입니다. 3층과 4층이 뚫려 있는 높은 공간이에요. 로비에서 문 네 개로 들어오실 수 있어요.'},
-   {n:'로비',r:[6,-2,18,6],kind:'lobby',lobby:1,d:'엘리베이터에서 내리면 바로 로비입니다. 안내 데스크에서 도움을 받으실 수 있어요.'},
+   {n:'예배당',r:[-18,-12,6,12],kind:'sanctuary',d:'주일 예배가 드려지는 본당입니다. 3층과 4층이 뚫려 있는 높은 공간이에요. 로비에서 문 네 개로 들어오실 수 있어요.'},
+   {n:'로비',r:[6,-2,18,6],kind:'lobby',d:'엘리베이터에서 내리면 바로 로비입니다. 안내 데스크에서 도움을 받으실 수 있어요.'},
    {n:'예배준비실',r:[6,-12,13,-2],kind:'etc',d:'예배를 준비하는 공간입니다.'},
    {n:'새가족실 1',r:[6,6,12,12],kind:'welcome',d:'처음 오신 분들을 환영하는 새가족실입니다. 편하게 들러주세요.'},
-   {n:'새가족실 2',r:[12,6,18,12],kind:'welcome',d:'처음 오신 분들을 환영하는 두 번째 새가족실입니다.'}]},
- {id:'4F',name:'4층',sub:'유치부·자모실',void:[-18,-12,0,12],rooms:[
+   {n:'새가족실 2',r:[12,6,18,12],kind:'welcome',d:'처음 오신 분들을 환영하는 두 번째 새가족실입니다.'},EV(),ST()]},
+ {id:'4F',name:'4층',sub:'유치부·자모실',rooms:[
+   {n:'예배당 위',r:[-18,-12,0,12],kind:'void',d:''},
    {n:'자모실',r:[0,-12,6,-3],kind:'edu',glass:1,d:'어린 자녀와 함께 예배를 볼 수 있는 공간입니다. 유리창 너머로 예배당이 내려다보여요.'},
    {n:'엔지니어실',r:[0,-3,6,6],kind:'office',glass:1,d:'예배 음향·영상·방송을 담당하는 곳입니다. 예배당 뒤쪽 위에 있어요.'},
-   {n:'유치부실',r:[6,2,18,12],kind:'edu',d:'유치부 아이들이 예배드리는 공간입니다.'}]},
+   {n:'유치부실',r:[6,2,18,12],kind:'edu',d:'유치부 아이들이 예배드리는 공간입니다.'},EV(),ST()]},
  {id:'5F',name:'5층',sub:'초등부·청년부',rooms:[
    {n:'초등부실',r:[-18,-12,-2,-2],kind:'edu',d:'초등부 아이들이 예배드리는 공간입니다.'},
-   {n:'다니엘도서관',r:[-18,2,-6,12],kind:'etc',d:'책을 읽고 쉬어갈 수 있는 교회 도서관입니다.'},
+   {n:'다니엘도서관',r:[-18,2,-6,12],kind:'library',d:'책을 읽고 쉬어갈 수 있는 교회 도서관입니다.'},
    {n:'다니엘실',r:[-6,2,4,12],kind:'edu',d:'모임과 교육에 쓰이는 다니엘실입니다.'},
-   {n:'스튜디오 (청년부실)',r:[4,2,18,12],kind:'youth',d:'청년부 더다붓이 모이는 곳입니다. 팟캐스트 촬영도 이곳에서 해요.'}]},
- {id:'RF',name:'옥상',sub:'옥상',roof:1,rooms:[]}
+   {n:'스튜디오 (청년부실)',r:[4,2,18,12],kind:'youth',d:'청년부 더다붓이 모이는 곳입니다. 팟캐스트 촬영도 이곳에서 해요.'},EV(),ST()]},
+ {id:'RF',name:'옥상',sub:'옥상',roof:1,rooms:[
+   {n:'옥상 정원',r:[-13,-7,-3,-1],kind:'garden',d:'옥상에 있는 작은 정원입니다.'},ST()]}
 ];
-const KIND={worship:'#f2d49b',edu:'#cfe4f4',office:'#e4e7ea',welcome:'#ffd08a',youth:'#f5cde0',etc:'#ebe5da',lobby:'#f6f1e8',park:'#d9d6d0',core:'#cfc8bd'};
-const DOT={worship:'#d9a23c',edu:'#2f86c8',office:'#8a96a3',welcome:'#f08c00',youth:'#e2609c',etc:'#a89c88',lobby:'#a89c88',park:'#8c877f',core:'#8c877f'};
+const STORE='seobu-map-v1';
 </script>
 
 <script>
 {
 const H=5, GAP=2.4, WALL=1.5;
-const cv=document.getElementById('gl');
+const $=id=>document.getElementById(id);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let FLOORS;
+try{const s=localStorage.getItem(STORE);FLOORS=s?JSON.parse(s):null}catch(e){FLOORS=null}
+if(!Array.isArray(FLOORS)||!FLOORS.length)FLOORS=JSON.parse(JSON.stringify(DEFAULT_FLOORS));
+
+const cv=$('gl');
 const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio,2));
 renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
@@ -123,98 +191,102 @@ ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.target.set(0,13,0);
 ctl.minDistance=28;ctl.maxDistance=180;ctl.maxPolarAngle=Math.PI*.47;ctl.enablePan=false;
 ctl.rotateSpeed=.7;ctl.autoRotate=true;ctl.autoRotateSpeed=.5;
 
-/* 빛 */
 scene.add(new THREE.HemisphereLight(0xfffaf0,0xb8a58a,.75));
 const sun=new THREE.DirectionalLight(0xfff3df,.75);sun.position.set(35,70,25);sun.castShadow=true;
 sun.shadow.mapSize.set(2048,2048);const sc=sun.shadow.camera;sc.left=-45;sc.right=45;sc.top=45;sc.bottom=-45;sc.near=10;sc.far=180;sun.shadow.bias=-.0006;sun.shadow.radius=4;
 scene.add(sun);
-
-/* 바닥 받침 */
 const base=new THREE.Mesh(new THREE.CircleGeometry(40,72),new THREE.ShadowMaterial({opacity:.12}));
 base.rotation.x=-Math.PI/2;base.receiveShadow=true;scene.add(base);
 const disk=new THREE.Mesh(new THREE.CylinderGeometry(27,28,.6,72),new THREE.MeshStandardMaterial({color:0xd9ccb6,roughness:.95}));
 disk.position.y=-.35;disk.receiveShadow=true;scene.add(disk);
 
-/* 재질 */
 const mcache={};
 function mat(col,o){const k=col+JSON.stringify(o||{});if(!mcache[k])mcache[k]=new THREE.MeshStandardMaterial(Object.assign({color:col,roughness:.85,metalness:0,transparent:true},o||{}));return mcache[k]}
-function box(g,w,h,d,x,y,z,m,noShadow){const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y+h/2,z);
+function box(g,w,h,d,x,y,z,m,noShadow){if(w<=0||h<=0||d<=0)return;const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);b.position.set(x,y+h/2,z);
   if(!noShadow){b.castShadow=true;b.receiveShadow=true}g.add(b);return b}
+const K=k=>KINDS[k]||KINDS.etc;
 
-const floorObjs=[];const pickables=[];
-FLOORS.forEach((F,i)=>{
-  const g=new THREE.Group();scene.add(g);
-  const o={F,g,i,mats:new Set(),rooms:[],baseY:i*(H+GAP),y:i*(H+GAP),ty:i*(H+GAP),off:new THREE.Vector3(),toff:new THREE.Vector3(),vis:1,tvis:1};
-  const own=m=>{const c=m.clone();c.userData.base=m.opacity;o.mats.add(c);return c};   // 층마다 투명도를 따로 조절하려고 복제
-  // 바닥판 (뚫린 곳 제외)
-  const shp=new THREE.Shape();shp.moveTo(-18,-12);shp.lineTo(18,-12);shp.lineTo(18,12);shp.lineTo(-18,12);shp.closePath();
-  if(F.void){const v=F.void;const h=new THREE.Path();h.moveTo(v[0]+.4,v[1]+.4);h.lineTo(v[0]+.4,v[3]-.4);h.lineTo(v[2],v[3]-.4);h.lineTo(v[2],v[1]+.4);h.closePath();shp.holes.push(h)}
-  const sg=new THREE.ExtrudeGeometry(shp,{depth:.7,bevelEnabled:false});sg.rotateX(Math.PI/2);
-  const slab=new THREE.Mesh(sg,own(mat(0xf3ede3)));slab.castShadow=true;slab.receiveShadow=true;g.add(slab);
-  slab.userData.floor=i;pickables.push(slab);
-  const edge=new THREE.LineSegments(new THREE.EdgesGeometry(sg),own(new THREE.LineBasicMaterial({color:0xc8b79c,transparent:true})));g.add(edge);
-  if(F.roof){
-    const wm=own(mat(0xe9dfcf));[[36,.3,0,-11.85],[36,.3,0,11.85]].forEach(a=>box(g,a[0],1.1,a[1],a[2],0,a[3],wm));
-    [[-17.85],[17.85]].forEach(a=>box(g,.3,1.1,24,a[0],0,0,wm));
-    const gm=own(mat(0xbcd79a));box(g,10,.25,6,-8,0,-4,gm);box(g,6,.25,6,6,0,4,gm);
+/* 방 종류별 소품 — 방 크기에 맞춰 놓입니다 */
+function deco(g,R,own){
+  const [x0,z0,x1,z1]=R.r;const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
+  switch(R.kind){
+  case 'sanctuary':{
+    const sw=Math.min(5,w*.22);box(g,sw,.9,d*.66,x0+.3+sw/2,0,cz,own(mat(0xd9b27a)));
+    box(g,1.4,1.3,1.1,x0+sw-.6,.9,cz,own(mat(0xc08a4a)));
+    const cr=own(mat(0xb98a50)),czx=cz-d*.19;box(g,.35,5.5,.35,x0+.7,.9,czx,cr);box(g,.35,.35,2.6,x0+.7,4.6,czx,cr);
+    const scr=new THREE.Mesh(new THREE.PlaneGeometry(Math.min(6.5,d*.27),3.6),own(new THREE.MeshBasicMaterial({color:0x7fc0ea,transparent:true})));
+    scr.rotation.y=Math.PI/2;scr.position.set(x0+.4,6.2,cz);g.add(scr);
+    const pew=own(mat(0xc08a4a)),bl=Math.max(1,(d-5)/2);
+    for(let x=x0+sw+2.2;x<x1-1.2;x+=1.75)[-1,1].forEach(s=>box(g,.5,.9,bl,x,0,cz+s*(1+bl/2),pew));
+    const dr=own(mat(0x6b5236));[-.31,-.1,.1,.31].forEach(f=>box(g,.1,2.4,Math.min(1.8,d*.08),x1-.2,0,cz+d*f,dr));
+    break}
+  case 'ev':{const em=own(mat(0x9aa0a6,{metalness:.5,roughness:.4}));const bw=Math.min(2.2,w*.5),bd=Math.min(1.6,d*.3);
+    box(g,bw,3.2,bd,cx,0,cz-d*.22,em);box(g,bw,3.2,bd,cx,0,cz+d*.22,em);break}
+  case 'st':{const sm=own(mat(0x4a4d52));const sw=(w-.8)/6;for(let s=0;s<6;s++)box(g,sw*.92,.3*(s+1),d*.8,x0+.4+sw*(s+.5),0,cz,sm);break}
+  case 'park':{const pm=own(mat(0xffffff));const cars=[0x2f86c8,0xf2f2f2,0x3b3b3b,0xc84a3a,0x9aa0a6];let n=0;
+    for(let x=x0+2;x<x1-1;x+=4){[z0+d*.25,z0+d*.75].forEach((z,j)=>{box(g,.15,.03,d*.2,x,.08,z,pm,1);
+      if((n*7+j*3)%4===0){const cm=own(mat(cars[n%5],{roughness:.5}));box(g,2.4,1,Math.min(4.2,d*.18),x+2,.1,z,cm);box(g,2,.7,Math.min(2.4,d*.1),x+2,1.1,z-.2,cm)}});n++}
+    break}
+  case 'lobby':{box(g,Math.min(4,w*.35),1.2,1.2,cx-w*.15,0,cz+d*.2,own(mat(0xffffff)));box(g,1,.8,.05,cx-w*.15,.2,cz+d*.2+.62,own(mat(0x2f86c8)),1);
+    const sm=own(mat(0x3a3a3a));for(let k=0;k<8;k++)box(g,Math.min(2.4,w*.2),.03,.18,cx+((k%2)?w*.17:-w*.17),.09,z0+.6+k*(d-1.2)/7,sm,1);break}
+  case 'welcome':{box(g,Math.min(3,w*.5),.9,Math.min(1.8,d*.3),cx,0,cz,own(mat(0xffffff)));const cm=own(mat(0x8cc63f));
+    [[-1,-1],[1,-1],[-1,1],[1,1]].forEach(p=>box(g,.7,.6,.7,cx+p[0]*Math.min(1.2,w*.2),0,cz+p[1]*Math.min(1.4,d*.25),cm));break}
+  case 'youth':{box(g,.12,2.2,.12,cx-w*.2,0,cz,own(mat(0x333333)));box(g,Math.min(6,w*.45),.9,Math.min(2,d*.2),cx+w*.08,0,cz+d*.2,own(mat(0xffffff)));break}
+  case 'library':{const bm=own(mat(0x9b6b3f));[-.25,0,.25].forEach(k=>box(g,.6,1.4,d*.7,cx+k*w,0,cz,bm));break}
+  case 'garden':{box(g,w-.6,.25,d-.6,cx,0,cz,own(mat(0xbcd79a)));break}
   }
-  const rooms=F.roof?[]:F.rooms.concat(CORE);
-  const wallM=own(mat(0xd8b887,{roughness:.7}));
-  const glassM=own(mat(0x9fc8e6,{opacity:.45,roughness:.1}));
-  rooms.forEach(R=>{
-    const [x0,z0,x1,z1]=R.r;const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
-    const kind=R.core?'core':R.kind;
-    const fl=new THREE.Mesh(new THREE.BoxGeometry(w-.3,.08,d-.3),own(mat(KIND[kind])));fl.position.set(cx,.04,cz);fl.receiveShadow=true;g.add(fl);
-    const t=.28,wh=R.sanctuary?WALL+1.2:WALL;const wm=R.glass?glassM:wallM;
-    if(!R.lobby&&kind!=='park'){
-      box(g,w,wh,t,cx,0,z0+t/2,wm);box(g,w,wh,t,cx,0,z1-t/2,wm);
-      box(g,t,wh,d,x0+t/2,0,cz,wm);box(g,t,wh,d,x1-t/2,0,cz,wm);
-    }
-    const hit=new THREE.Mesh(new THREE.BoxGeometry(w-.4,wh+.4,d-.4),new THREE.MeshBasicMaterial({visible:false}));hit.position.set(cx,(wh+.4)/2,cz);g.add(hit);
-    const rm={R,kind,fl,flBase:fl.material.color.clone(),center:new THREE.Vector3(cx,wh+1.2,cz),floor:i};
-    hit.userData.room=rm;hit.userData.floor=i;pickables.push(hit);o.rooms.push(rm);
-    if(R.core==='ev'){const em=own(mat(0x9aa0a6,{metalness:.5,roughness:.4}));box(g,2.2,3.2,1.6,15.5,0,-10.4,em);box(g,2.2,3.2,1.6,15.5,0,-7.6,em)}
-    if(R.core==='st'){const sm=own(mat(0x4a4d52));for(let s=0;s<6;s++)box(g,.55,.3*(s+1),3.4,13.8+s*.6,0,-4,sm)}
-    if(kind==='park'){const pm=own(mat(0xffffff));for(let k=0;k<7;k++){box(g,.15,.03,5,-15+k*4,.08,-6,pm,1);box(g,.15,.03,5,-15+k*4,.08,6,pm,1)}
-      const cars=[0x2f86c8,0xf2f2f2,0x3b3b3b,0xc84a3a,0x9aa0a6];[[-13,-6],[-5,6],[3,-6],[-9,6],[7,6]].forEach((p,k)=>{const cm=own(mat(cars[k%5],{roughness:.5}));box(g,2.4,1,4.2,p[0],.1,p[1],cm);box(g,2,.7,2.4,p[0],1.1,p[1]-.2,cm)})}
-    if(R.lobby){const dm=own(mat(0xffffff));box(g,4,1.2,1.2,10,0,3.6,dm);const lm=own(mat(0x2f86c8));box(g,1,.8,.05,10,.2,4.22,lm,1);
-      const sm=own(mat(0x3a3a3a));for(let k=0;k<8;k++)box(g,2.4,.03,.18,8+((k%2)*4),.09,-1.2+k*.9,sm,1)}
-    if(R.sanctuary){
-      const stM=own(mat(0xd9b27a));box(g,5,.9,16,-15.4,0,0,stM);
-      box(g,1.4,1.3,1.1,-14.2,.9,0,own(mat(0xc08a4a)));
-      const cr=own(mat(0xb98a50));box(g,.35,5.5,.35,-17.3,.9,-4.5,cr);box(g,.35,.35,2.6,-17.3,4.6,-4.5,cr);
-      const scr=new THREE.Mesh(new THREE.PlaneGeometry(6.5,3.6),own(new THREE.MeshBasicMaterial({color:0x7fc0ea,transparent:true})));
-      scr.rotation.y=Math.PI/2;scr.position.set(-17.6,6.2,0);g.add(scr);
-      const pew=own(mat(0xc08a4a));for(let r=0;r<9;r++){const x=-10+r*1.75;[-6.2,6.2].forEach(z=>box(g,.5,.9,8.6,x,0,z,pew))}
-      const dr=own(mat(0x6b5236));[-7.5,-2.5,2.5,7.5].forEach(z=>box(g,.1,2.4,1.8,5.8,0,z,dr));
-    }
-    if(kind==='welcome'){const tm=own(mat(0xffffff));box(g,3,.9,1.8,cx,0,cz,tm);const cm=own(mat(0x8cc63f));[[-1.2,-1.4],[1.2,-1.4],[-1.2,1.4],[1.2,1.4]].forEach(p=>box(g,.7,.6,.7,cx+p[0],0,cz+p[1],cm))}
-    if(kind==='youth'){const mm=own(mat(0x333333));box(g,.12,2.2,.12,cx-3,0,cz,mm);box(g,6,.9,2,cx+1,0,cz+2,own(mat(0xffffff)))}
-    if(R.n==='다니엘도서관'){const bm=own(mat(0x9b6b3f));[-3,0,3].forEach(k=>box(g,.6,1.4,7,cx+k,0,cz,bm))}
-  });
-  floorObjs.push(o);
-});
+}
 
-/* 라벨 */
-const LB=document.getElementById('labels');
+/* ===== 3D 건물 만들기 (저장할 때마다 다시 만듭니다) ===== */
+let floorObjs=[],pickables=[];
+const LB=$('labels'),FB=$('floors');
 function mk(html,cls){const d=document.createElement('div');d.className='lb '+(cls||'');d.innerHTML=html;LB.appendChild(d);return d}
-floorObjs.forEach(o=>{
-  o.flabel=mk('<b>'+o.F.id+'</b>'+o.F.sub,'fl');
-  o.rooms.forEach(rm=>{
-    rm.el=mk((rm.R.core?'':'<i style="background:'+DOT[rm.kind]+'"></i>')+rm.R.n,rm.R.core?'core':'');rm.el.style.opacity=0;
-    rm.el.addEventListener('click',ev=>{ev.stopPropagation();selectRoom(rm)})});
-});
+function clearAll(){
+  floorObjs.forEach(o=>{scene.remove(o.g);o.g.traverse(c=>{if(c.geometry)c.geometry.dispose();if(c.material&&c.material.dispose)c.material.dispose()})});
+  floorObjs=[];pickables=[];LB.innerHTML='';FB.innerHTML='';
+}
+function buildAll(){
+  clearAll();
+  FLOORS.forEach((F,i)=>{
+    const g=new THREE.Group();scene.add(g);
+    const o={F,g,i,mats:new Set(),rooms:[],baseY:i*(H+GAP),y:i*(H+GAP),ty:i*(H+GAP),off:new THREE.Vector3(),toff:new THREE.Vector3(),vis:1,tvis:1};
+    const own=m=>{const c=m.clone();c.userData.base=m.opacity;o.mats.add(c);return c};
+    const shp=new THREE.Shape();shp.moveTo(-18,-12);shp.lineTo(18,-12);shp.lineTo(18,12);shp.lineTo(-18,12);shp.closePath();
+    const cl=(v,a)=>Math.max(-a,Math.min(a,v));
+    F.rooms.filter(R=>R.kind==='void').forEach(R=>{const [a,b,c,d]=R.r;const h=new THREE.Path();
+      const X0=cl(a+.3,17.6),Z0=cl(b+.3,11.6),X1=cl(c-.3,17.6),Z1=cl(d-.3,11.6);if(X1-X0<.5||Z1-Z0<.5)return;
+      h.moveTo(X0,Z0);h.lineTo(X0,Z1);h.lineTo(X1,Z1);h.lineTo(X1,Z0);h.closePath();shp.holes.push(h)});
+    const sg=new THREE.ExtrudeGeometry(shp,{depth:.7,bevelEnabled:false});sg.rotateX(Math.PI/2);
+    const slab=new THREE.Mesh(sg,own(mat(0xf3ede3)));slab.castShadow=true;slab.receiveShadow=true;g.add(slab);
+    slab.userData.floor=i;pickables.push(slab);
+    g.add(new THREE.LineSegments(new THREE.EdgesGeometry(sg),own(new THREE.LineBasicMaterial({color:0xc8b79c,transparent:true}))));
+    if(F.roof){const wm=own(mat(0xe9dfcf));box(g,36,1.1,.3,0,0,-11.85,wm);box(g,36,1.1,.3,0,0,11.85,wm);box(g,.3,1.1,24,-17.85,0,0,wm);box(g,.3,1.1,24,17.85,0,0,wm)}
+    const wallM=own(mat(0xd8b887,{roughness:.7})),glassM=own(mat(0x9fc8e6,{opacity:.45,roughness:.1}));
+    F.rooms.forEach(R=>{
+      if(R.kind==='void')return;
+      const k=K(R.kind);const [x0,z0,x1,z1]=R.r;const w=x1-x0,d=z1-z0,cx=(x0+x1)/2,cz=(z0+z1)/2;
+      const fl=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.1,w-.3),.08,Math.max(.1,d-.3)),own(mat(k.c)));fl.position.set(cx,.04,cz);fl.receiveShadow=true;g.add(fl);
+      const t=.28,wh=k.wall||WALL,wm=R.glass?glassM:wallM;
+      if(!k.noWall){box(g,w,wh,t,cx,0,z0+t/2,wm);box(g,w,wh,t,cx,0,z1-t/2,wm);box(g,t,wh,d,x0+t/2,0,cz,wm);box(g,t,wh,d,x1-t/2,0,cz,wm)}
+      const hit=new THREE.Mesh(new THREE.BoxGeometry(Math.max(.2,w-.4),wh+.4,Math.max(.2,d-.4)),new THREE.MeshBasicMaterial({visible:false}));hit.position.set(cx,(wh+.4)/2,cz);g.add(hit);
+      const rm={R,k,fl,flBase:fl.material.color.clone(),center:new THREE.Vector3(cx,wh+1.2,cz),floor:i};
+      hit.userData.room=rm;hit.userData.floor=i;pickables.push(hit);o.rooms.push(rm);
+      deco(g,R,own);
+    });
+    o.flabel=mk('<b>'+esc(F.id)+'</b>'+esc(F.sub),'fl');
+    o.rooms.forEach(rm=>{rm.el=mk((rm.k.core?'':'<i style="background:'+rm.k.dot+'"></i>')+esc(rm.R.n),rm.k.core?'core':'');rm.el.style.opacity=0;
+      rm.el.addEventListener('click',ev=>{ev.stopPropagation();selectRoom(rm)})});
+    o.meshes=[];g.traverse(c=>{if(c.isMesh&&c.castShadow)o.meshes.push(c)});
+    floorObjs.push(o);
+  });
+  floorObjs.slice().reverse().forEach(o=>{const b=document.createElement('button');b.className='fb';b.innerHTML='<b>'+esc(o.F.id)+'</b><span>'+esc(o.F.sub)+'</span>';
+    b.onclick=()=>selectFloor(o.i);o.btn=b;FB.appendChild(b)});
+  all=document.createElement('button');all.className='fb on';all.id='allBtn';all.textContent='전체 보기';all.onclick=()=>selectFloor(-1);FB.appendChild(all);
+  sel=-1;selRoom=null;
+}
 
-/* 층 버튼 */
-const FB=document.getElementById('floors');
-floorObjs.slice().reverse().forEach(o=>{
-  const b=document.createElement('button');b.className='fb';b.innerHTML='<b>'+o.F.id+'</b><span>'+o.F.sub+'</span>';
-  b.onclick=()=>selectFloor(o.i);o.btn=b;FB.appendChild(b);
-});
-const all=document.createElement('button');all.className='fb on';all.id='allBtn';all.textContent='전체 보기';all.onclick=()=>selectFloor(-1);FB.appendChild(all);
-
-/* 상태 */
-let sel=-1,selRoom=null;const camGoal={pos:null,tgt:null,t:0};
+let sel=-1,selRoom=null,all=null;const camGoal={pos:null,tgt:null,t:0};
+const mid=()=>new THREE.Vector3(0,(FLOORS.length-1)*(H+GAP)/2,0);
 function flyTo(tgt,dist,elev){
   const dir=cam.position.clone().sub(ctl.target);dir.y=0;dir.normalize();
   const e=elev||.62;camGoal.tgt=tgt.clone();
@@ -223,31 +295,24 @@ function flyTo(tgt,dist,elev){
 function selectFloor(i){
   sel=i;selectRoom(null);
   floorObjs.forEach(o=>o.btn.classList.toggle('on',o.i===i));all.classList.toggle('on',i<0);
-  if(i<0){floorObjs.forEach(o=>{o.ty=o.baseY;o.toff.set(0,0,0);o.tvis=1});flyTo(new THREE.Vector3(0,13,0),105,.55);ctl.autoRotate=true;return}
+  if(i<0){floorObjs.forEach(o=>{o.ty=o.baseY;o.toff.set(0,0,0);o.tvis=1});flyTo(mid(),105,.55);ctl.autoRotate=true;return}
   ctl.autoRotate=false;
-  floorObjs.forEach(o=>{
-    if(o.i===i){o.ty=o.baseY;o.tvis=1}
-    else if(o.i>i){o.ty=o.baseY+30;o.tvis=0}
-    else{o.ty=o.baseY;o.tvis=.25}
-    o.toff.set(0,0,0);
-  });
+  floorObjs.forEach(o=>{if(o.i===i){o.ty=o.baseY;o.tvis=1}else if(o.i>i){o.ty=o.baseY+30;o.tvis=0}else{o.ty=o.baseY;o.tvis=.25}o.toff.set(0,0,0)});
   flyTo(new THREE.Vector3(0,floorObjs[i].baseY,0),62,.85);
 }
-const card=document.getElementById('card');
+const card=$('card');
 function selectRoom(rm){
   if(selRoom){selRoom.el.classList.remove('sel');selRoom.fl.material.color.copy(selRoom.flBase)}
   selRoom=null;
   if(!rm){card.classList.remove('show');return}
   if(sel!==rm.floor)selectFloor(rm.floor);
-  selRoom=rm;rm.el.classList.add('sel');rm.fl.material.color.set(DOT[rm.kind]).lerp(new THREE.Color(0xffffff),.35);
-  document.getElementById('cardF').textContent=FLOORS[rm.floor].name;
-  document.getElementById('cardT').textContent=rm.R.n;
-  document.getElementById('cardD').textContent=rm.R.d||(rm.R.core?'층과 층을 오가는 통로입니다. 엘리베이터는 주차장 옆에서 타실 수 있어요.':'');
+  selRoom=rm;rm.el.classList.add('sel');rm.fl.material.color.set(rm.k.dot).lerp(new THREE.Color(0xffffff),.35);
+  $('cardF').textContent=FLOORS[rm.floor].name;$('cardT').textContent=rm.R.n;
+  $('cardD').textContent=rm.R.d||(rm.k.core?'층과 층을 오가는 통로입니다.':'');
   card.classList.add('show');
 }
-document.getElementById('cardX').onclick=()=>selectRoom(null);
+$('cardX').onclick=()=>selectRoom(null);
 
-/* 터치로 고르기 (돌리기와 구분) */
 const ray=new THREE.Raycaster();let down=null;
 cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()};ctl.autoRotate=false;camGoal.t=0});
 cv.addEventListener('pointerup',e=>{
@@ -259,14 +324,115 @@ cv.addEventListener('pointerup',e=>{
   if(!hit)return;const ud=hit.object.userData;
   if(sel===ud.floor&&ud.room)selectRoom(ud.room);else selectFloor(ud.floor);
 });
-
-function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;if(w>700)cam.setViewOffset(w,h,Math.round(w*.07),0,w,h);else cam.clearViewOffset();cam.updateProjectionMatrix()}
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;
+  if(w>700)cam.setViewOffset(w,h,Math.round(w*.07),0,w,h);else cam.clearViewOffset();cam.updateProjectionMatrix()}
 addEventListener('resize',resize);resize();
-document.getElementById('start').onclick=()=>{document.getElementById('intro').classList.add('hide');flyTo(new THREE.Vector3(0,13,0),105,.55)};
+$('start').onclick=()=>{$('intro').classList.add('hide');flyTo(mid(),105,.55)};
+
+/* ===== 설계도 편집기 =====
+   제목(로고)을 1.2초 길게 누르면 열립니다 — 방문객이 실수로 열지 않게 */
+const head=$('head');let pressT=null;
+let pressAt=0;
+head.addEventListener('pointerdown',()=>{pressAt=performance.now();head.classList.add('press');pressT=setTimeout(()=>{pressAt=0;head.classList.remove('press');openEditor()},1200)});
+head.addEventListener('pointerup',()=>{head.classList.remove('press');clearTimeout(pressT);if(pressAt&&performance.now()-pressAt>=1200)openEditor();pressAt=0});
+['pointerleave','pointercancel'].forEach(ev=>head.addEventListener(ev,()=>{head.classList.remove('press');clearTimeout(pressT);pressAt=0}));
+
+const ed=$('ed'),svg=$('edSvg'),side=$('edSide');
+let draft=null,ef=0,es=-1,undo=[],dirty=false,drag=null;
+const snap=v=>Math.round(v*2)/2;
+function snapshot(){undo.push(JSON.stringify(draft));if(undo.length>60)undo.shift();$('edUndo').disabled=false;dirty=true;resetClose()}
+function openEditor(){
+  draft=JSON.parse(JSON.stringify(FLOORS));undo=[];dirty=false;$('edUndo').disabled=true;resetClose();
+  ef=sel>=0?sel:Math.min(2,draft.length-1);es=-1;edTabs();edDraw();edPanel();ed.classList.remove('hide');
+}
+function edTabs(){$('edTabs').innerHTML=draft.map((F,i)=>'<button class="tab'+(i===ef?' on':'')+'" data-f="'+i+'">'+esc(F.id)+'</button>').join('');
+  $('edTabs').querySelectorAll('.tab').forEach(b=>b.onclick=()=>{ef=+b.dataset.f;es=-1;edTabs();edDraw();edPanel()})}
+function edDraw(){
+  const F=draft[ef],below=draft[ef-1];let s='';
+  s+='<defs><pattern id="hatch" width="1" height="1" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="1" stroke="#c9bba6" stroke-width=".25"/></pattern></defs>';
+  s+='<rect x="-18" y="-12" width="36" height="24" fill="#fffdf9" stroke="#b9a88c" stroke-width=".25"/>';
+  for(let x=-17;x<18;x++)s+='<line x1="'+x+'" y1="-12" x2="'+x+'" y2="12" stroke="'+(x%6===0?'#e2d6c3':'#f0e9de')+'" stroke-width=".06"/>';
+  for(let z=-11;z<12;z++)s+='<line x1="-18" y1="'+z+'" x2="18" y2="'+z+'" stroke="'+(z%6===0?'#e2d6c3':'#f0e9de')+'" stroke-width=".06"/>';
+  if(below)below.rooms.forEach(R=>{const [a,b,c,d]=R.r;s+='<rect x="'+a+'" y="'+b+'" width="'+(c-a)+'" height="'+(d-b)+'" fill="none" stroke="#a99b85" stroke-width=".08" stroke-dasharray=".4 .3"/>'});
+  F.rooms.forEach((R,i)=>{
+    const [a,b,c,d]=R.r,w=c-a,h=d-b,k=K(R.kind),on=i===es;
+    s+='<g data-i="'+i+'" style="cursor:move">';
+    s+='<rect data-i="'+i+'" x="'+(a+.08)+'" y="'+(b+.08)+'" width="'+(w-.16)+'" height="'+(h-.16)+'" rx=".25" fill="'+(k.isVoid?'url(#hatch)':k.c)+'" fill-opacity="'+(k.isVoid?1:.92)+'" stroke="'+(on?'#2f86c8':R.glass?'#7fb0d6':'#b48e58')+'" stroke-width="'+(on?.22:.12)+'"/>';
+    const fs=Math.max(.45,Math.min(1.05,(w-.6)/(Math.max(2,R.n.length)*1.05),h*.32));
+    s+='<text x="'+(a+w/2)+'" y="'+(b+h/2)+'" font-size="'+fs+'" text-anchor="middle" dominant-baseline="central" fill="#2b2a27" font-weight="700" pointer-events="none" font-family="Pretendard,Noto Sans KR,sans-serif">'+esc(R.n)+'</text>';
+    s+='</g>';
+  });
+  if(es>=0&&F.rooms[es]){const [a,b,c,d]=F.rooms[es].r;[[a,b],[c,b],[a,d],[c,d]].forEach((p,j)=>{
+    s+='<circle data-h="'+j+'" cx="'+p[0]+'" cy="'+p[1]+'" r=".6" fill="#fff" stroke="#2f86c8" stroke-width=".18" style="cursor:nwse-resize"/>'})}
+  svg.innerHTML=s;
+}
+function room(){return es>=0?draft[ef].rooms[es]:null}
+function edPanel(){
+  const R=room(),F=draft[ef];
+  if(R){
+    const w=R.r[2]-R.r[0],h=R.r[3]-R.r[1];
+    side.innerHTML='<h3>방 정보</h3>'+
+      '<label>이름</label><input type="text" id="pN" value="'+esc(R.n)+'">'+
+      '<label>종류</label><select id="pK">'+Object.keys(KINDS).map(k=>'<option value="'+k+'"'+(k===R.kind?' selected':'')+'>'+KINDS[k].t+'</option>').join('')+'</select>'+
+      '<label class="chk"><input type="checkbox" id="pG"'+(R.glass?' checked':'')+'> 벽을 유리로 (안이 들여다보이게)</label>'+
+      '<label>설명 (방을 누르면 나오는 글)</label><textarea id="pD">'+esc(R.d||'')+'</textarea>'+
+      '<div class="size">크기 '+w+' × '+h+' 칸</div>'+
+      '<div class="row"><button class="btn" id="pDup">복제</button><button class="btn warn" id="pDel">이 방 지우기</button><button class="btn" id="pDone">선택 해제</button></div>';
+    const bind=(id,ev,fn)=>{const el=$(id);let first=true;el.addEventListener('focus',()=>first=true);el.addEventListener(ev,()=>{if(first){snapshot();first=false}fn(el)})};
+    bind('pN','input',el=>{R.n=el.value;edDraw()});
+    bind('pD','input',el=>{R.d=el.value});
+    $('pK').onchange=e=>{snapshot();R.kind=e.target.value;if(R.n==='새 방')R.n=KINDS[R.kind].t.split(' ')[0];edDraw();edPanel()};
+    $('pG').onchange=e=>{snapshot();R.glass=e.target.checked?1:0;edDraw()};
+    $('pDel').onclick=()=>{snapshot();F.rooms.splice(es,1);es=-1;edDraw();edPanel()};
+    $('pDup').onclick=()=>{snapshot();const c=JSON.parse(JSON.stringify(R));c.n=R.n+' 복사';const dx=Math.min(2,18-c.r[2]);c.r=[c.r[0]+dx,c.r[1],c.r[2]+dx,c.r[3]];F.rooms.push(c);es=F.rooms.length-1;edDraw();edPanel()};
+    $('pDone').onclick=()=>{es=-1;edDraw();edPanel()};
+  }else{
+    side.innerHTML='<h3>'+esc(F.name)+' 설계</h3>'+
+      '<label>층 버튼에 보일 설명</label><input type="text" id="fS" value="'+esc(F.sub)+'">'+
+      '<label>이 층의 방 ('+F.rooms.length+')</label><div class="rlist">'+
+      F.rooms.map((R,i)=>'<button class="ritem" data-i="'+i+'"><i style="background:'+K(R.kind).dot+'"></i>'+esc(R.n)+'</button>').join('')+'</div>'+
+      '<p class="note">평면도에서 방을 누르면 이름·종류·설명을 고칠 수 있어요. 한 칸은 대략 1m 정도로 생각하시면 돼요.</p>'+
+      '<hr><label>설계도 주고받기</label>'+
+      '<div class="row"><button class="btn" id="xOut">복사하기</button><button class="btn" id="xIn">붙여넣어 불러오기</button></div>'+
+      '<textarea id="xTxt" placeholder="복사한 설계도 글을 여기에 붙여넣으세요" style="margin-top:10px;min-height:80px;font-size:13px"></textarea>'+
+      '<p class="note">복사하기를 누르면 설계도 전체가 글로 복사돼요. 다른 기기에 붙여넣거나 Claude에게 보내주시면 앱 기본 설계로 넣어드릴 수 있어요.</p>'+
+      '<div class="row"><button class="btn warn" id="xReset">처음 설계로 되돌리기</button></div>';
+    const fS=$('fS');let first=true;fS.onfocus=()=>first=true;fS.oninput=()=>{if(first){snapshot();first=false}F.sub=fS.value};
+    side.querySelectorAll('.ritem').forEach(b=>b.onclick=()=>{es=+b.dataset.i;edDraw();edPanel()});
+    $('xOut').onclick=async()=>{const t=JSON.stringify(draft);$('xTxt').value=t;try{await navigator.clipboard.writeText(t);$('xOut').textContent='복사됐어요'}catch(e){$('xTxt').select();$('xOut').textContent='아래 글을 길게 눌러 복사'}};
+    $('xIn').onclick=()=>{try{const d=JSON.parse($('xTxt').value);if(!Array.isArray(d)||!d.every(f=>f&&Array.isArray(f.rooms)))throw 0;snapshot();draft=d;ef=Math.min(ef,d.length-1);es=-1;edTabs();edDraw();edPanel()}catch(e){$('xIn').textContent='글 형식이 맞지 않아요'}};
+    let rs=0;$('xReset').onclick=()=>{if(!rs){rs=1;$('xReset').textContent='정말 되돌릴까요? 한 번 더 누르세요';return}snapshot();draft=JSON.parse(JSON.stringify(DEFAULT_FLOORS));es=-1;edTabs();edDraw();edPanel()};
+  }
+}
+function pt(e){const p=svg.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(svg.getScreenCTM().inverse())}
+svg.addEventListener('pointerdown',e=>{
+  const t=e.target,p=pt(e);
+  if(t.dataset.h!=null&&es>=0){drag={h:+t.dataset.h,p0:p,r0:room().r.slice(),snap:JSON.stringify(draft),moved:false}}
+  else if(t.dataset.i!=null){const i=+t.dataset.i;if(i!==es){es=i;edPanel()}drag={h:-1,p0:p,r0:room().r.slice(),snap:JSON.stringify(draft),moved:false};edDraw()}
+  else{if(es>=0){es=-1;edDraw();edPanel()}return}
+  svg.setPointerCapture(e.pointerId);e.preventDefault();
+});
+svg.addEventListener('pointermove',e=>{
+  if(!drag)return;const p=pt(e),dx=snap(p.x-drag.p0.x),dz=snap(p.y-drag.p0.y);const r=drag.r0.slice(),R=room();
+  if(drag.h<0){const nx=Math.max(-18-r[0],Math.min(18-r[2],dx)),nz=Math.max(-12-r[1],Math.min(12-r[3],dz));R.r=[r[0]+nx,r[1]+nz,r[2]+nx,r[3]+nz]}
+  else{const xi=drag.h%2===0?0:2,zi=drag.h<2?1:3;r[xi]=Math.max(-18,Math.min(18,r[xi]+dx));r[zi]=Math.max(-12,Math.min(12,r[zi]+dz));
+    if(xi===0)r[0]=Math.min(r[0],r[2]-1);else r[2]=Math.max(r[2],r[0]+1);if(zi===1)r[1]=Math.min(r[1],r[3]-1);else r[3]=Math.max(r[3],r[1]+1);R.r=r}
+  if(R.r.join()!==drag.r0.join())drag.moved=true;edDraw();
+});
+const endDrag=()=>{if(!drag)return;if(drag.moved){undo.push(drag.snap);if(undo.length>60)undo.shift();$('edUndo').disabled=false;dirty=true;resetClose()}drag=null;edPanel()};
+svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
+$('edUndo').onclick=()=>{if(!undo.length)return;draft=JSON.parse(undo.pop());$('edUndo').disabled=!undo.length;if(es>=(draft[ef]||{rooms:[]}).rooms.length)es=-1;edTabs();edDraw();edPanel()};
+$('edAdd').onclick=()=>{snapshot();const F=draft[ef];F.rooms.push({n:'새 방',r:[-3,-3,3,3],kind:'etc',d:''});es=F.rooms.length-1;edDraw();edPanel();setTimeout(()=>{const n=$('pN');if(n){n.focus();n.select()}},50)};
+function resetClose(){$('edClose').textContent='닫기';$('edClose').classList.remove('warn');closeArm=0}
+let closeArm=0;
+$('edClose').onclick=()=>{if(dirty&&!closeArm){closeArm=1;$('edClose').textContent='저장 안 하고 닫을까요?';$('edClose').classList.add('warn');return}ed.classList.add('hide');draft=null};
+$('edSave').onclick=()=>{
+  FLOORS=draft;try{localStorage.setItem(STORE,JSON.stringify(FLOORS))}catch(e){}
+  const f=ef;buildAll();ed.classList.add('hide');draft=null;$('intro').classList.add('hide');setTimeout(()=>selectFloor(Math.min(f,floorObjs.length-1)),50);
+};
 
 /* 루프 */
-const v=new THREE.Vector3();let last=performance.now();const hint=document.getElementById('hint');
-floorObjs.forEach(o=>{o.meshes=[];o.g.traverse(c=>{if(c.isMesh&&c.material.visible!==false&&c.castShadow)o.meshes.push(c)})});
+const v=new THREE.Vector3();let last=performance.now();const hint=$('hint');
 function loop(now){
   requestAnimationFrame(loop);
   const dt=Math.min(.05,(now-last)/1000);last=now;const k=1-Math.pow(.003,dt);
@@ -292,10 +458,11 @@ function loop(now){
     });
   });
   hint.style.opacity=selRoom?0:1;
-  renderer.render(scene,cam);
+  if(ed.classList.contains('hide'))renderer.render(scene,cam);
 }
+buildAll();
 requestAnimationFrame(loop);
-window.__holo={selectFloor,selectRoom,floorObjs,cam,ctl};
+window.__holo={selectFloor,selectRoom,get floorObjs(){return floorObjs},cam,ctl,openEditor};
 }
 </script>
 </body>

@@ -34,6 +34,8 @@ jobs:
           java-version: 21
 
       - name: 화면 파일 만들기
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
         run: |
           npm ci
           node build.js android/app/src/main/assets/index.html

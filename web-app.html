@@ -28,6 +28,7 @@ html,body{width:100%;height:100%;overflow:hidden;color:var(--ink);
 .fb.on{background:var(--sky);color:#fff;box-shadow:0 6px 18px rgba(47,134,200,.35)}
 .fb.on b{color:#fff}
 #allBtn{margin-top:6px;justify-content:center;font-weight:700;background:rgba(255,255,255,.6)}
+#edBtn{margin-top:2px;justify-content:center;font-size:14px;color:var(--sub);background:transparent;box-shadow:none}
 #allBtn.on{background:var(--ink);color:#fff;box-shadow:0 6px 18px rgba(0,0,0,.2)}
 #labels{position:fixed;inset:0;pointer-events:none}
 .lb{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:15px;font-weight:600;padding:6px 12px 6px 10px;
@@ -102,7 +103,7 @@ html,body{width:100%;height:100%;overflow:hidden;color:var(--ink);
 <p>처음 오셨나요? 건물 곳곳을 한눈에 보여드릴게요</p><button id="start">둘러보기</button></div>
 
 <div id="ed" class="hide">
-  <div class="edtop"><b>설계도 편집</b><div id="edTabs"></div><span class="sp"></span>
+  <div class="edtop"><b>설계도 편집 <small style="font-size:12px;color:#a89c88;font-weight:500">v__VER__</small></b><div id="edTabs"></div><span class="sp"></span>
     <button class="btn" id="edUndo">되돌리기</button><button class="btn" id="edAdd">+ 방 추가</button>
     <button class="btn" id="edClose">닫기</button><button class="btn pri" id="edSave">저장하고 보기</button></div>
   <div class="edmain">
@@ -282,6 +283,7 @@ function buildAll(){
   floorObjs.slice().reverse().forEach(o=>{const b=document.createElement('button');b.className='fb';b.innerHTML='<b>'+esc(o.F.id)+'</b><span>'+esc(o.F.sub)+'</span>';
     b.onclick=()=>selectFloor(o.i);o.btn=b;FB.appendChild(b)});
   all=document.createElement('button');all.className='fb on';all.id='allBtn';all.textContent='전체 보기';all.onclick=()=>selectFloor(-1);FB.appendChild(all);
+  const eb=document.createElement('button');eb.className='fb';eb.id='edBtn';eb.textContent='✎ 설계도 편집';eb.onclick=()=>openEditor();FB.appendChild(eb);
   sel=-1;selRoom=null;
 }
 

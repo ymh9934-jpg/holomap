@@ -33,8 +33,6 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - uses: android-actions/setup-android@v3
-
       - name: 화면 파일 만들기
         run: |
           npm ci

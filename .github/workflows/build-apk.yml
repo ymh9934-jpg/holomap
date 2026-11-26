@@ -1,0 +1,63 @@
+name: 앱 만들기 (APK)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+    steps:
+      - name: 서명 비밀번호 확인
+        run: |
+          if [ -z "$SIGNING_PASSWORD" ]; then
+            echo "::error::SIGNING_PASSWORD 비밀값이 없어요. 저장소 Settings → Secrets and variables → Actions 에서 추가해 주세요."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+
+      - uses: android-actions/setup-android@v3
+
+      - name: 화면 파일 만들기
+        run: |
+          npm ci
+          node build.js android/app/src/main/assets/index.html
+
+      - name: 서명 열쇠 풀기
+        run: openssl enc -d -aes-256-cbc -pbkdf2 -iter 200000 -in android/app/release.keystore.enc -out android/app/release.keystore -pass env:SIGNING_PASSWORD
+
+      - name: APK 빌드
+        working-directory: android
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: 릴리스에 올리기
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          cp android/app/build/outputs/apk/release/app-release.apk holomap.apk
+          gh release create "v1.0.${{ github.run_number }}" holomap.apk \
+            --target "${{ github.sha }}" \
+            --title "서부교회 안내도 1.0.${{ github.run_number }}" \
+            --notes "갤럭시 탭에서 holomap.apk 를 눌러 내려받고 설치하세요." \
+            --latest

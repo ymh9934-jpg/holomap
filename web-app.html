@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>서부교회 홀로맵</title>
+<style>
+:root{--c:#5ff3ff;--c2:#2aa9ff;--dim:#0b2a3d;--warm:#ffd36b;--pink:#ff7ad9}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{width:100%;height:100%;overflow:hidden;background:#020812;color:var(--c);
+ font-family:"Pretendard","Noto Sans KR","Apple SD Gothic Neo","Samsung Sans",sans-serif}
+#gl{position:fixed;inset:0;display:block;touch-action:none}
+#fx{position:fixed;inset:0;pointer-events:none;
+ background:repeating-linear-gradient(0deg,rgba(95,243,255,.035) 0 1px,transparent 1px 3px),
+ radial-gradient(ellipse at center,transparent 55%,rgba(0,0,0,.65) 100%)}
+.hud{position:fixed;pointer-events:none;font-size:13px;letter-spacing:.18em;color:rgba(95,243,255,.6)}
+#tl{top:22px;left:28px}
+#tl b{display:block;font-size:26px;letter-spacing:.08em;color:var(--c);text-shadow:0 0 14px rgba(95,243,255,.7);margin-top:4px}
+#bl{bottom:22px;left:28px}
+.corner{position:fixed;width:46px;height:46px;border:2px solid rgba(95,243,255,.45);pointer-events:none}
+.corner.a{top:12px;left:12px;border-right:0;border-bottom:0}.corner.b{top:12px;right:12px;border-left:0;border-bottom:0}
+.corner.c{bottom:12px;left:12px;border-right:0;border-top:0}.corner.d{bottom:12px;right:12px;border-left:0;border-top:0}
+#floors{position:fixed;right:34px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:10px}
+.fb{width:200px;white-space:nowrap;padding:12px 16px;border:1px solid rgba(95,243,255,.35);background:rgba(4,24,40,.55);
+ color:var(--c);font-size:17px;text-align:left;border-radius:6px;backdrop-filter:blur(4px);font-family:inherit;
+ transition:all .25s;display:flex;align-items:baseline;gap:10px}
+.fb small{font-size:12px;opacity:.6;letter-spacing:0}
+.fb b{font-size:22px;min-width:44px;font-weight:700}
+.fb.on{background:rgba(95,243,255,.18);border-color:var(--c);box-shadow:0 0 18px rgba(95,243,255,.45),inset 0 0 12px rgba(95,243,255,.2)}
+#allBtn{margin-top:8px;text-align:center;justify-content:center;font-size:15px}
+#labels{position:fixed;inset:0;pointer-events:none}
+.lb{position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font-size:15px;padding:4px 10px;
+ border:1px solid rgba(95,243,255,.5);background:rgba(2,16,28,.7);border-radius:4px;color:#dffcff;
+ text-shadow:0 0 8px rgba(95,243,255,.8);pointer-events:auto;transition:opacity .3s}
+.lb.fl{font-size:14px;border:0;background:none;color:var(--c);letter-spacing:.06em;pointer-events:none}
+.lb.fl b{font-size:20px;margin-right:8px}
+.lb.sel{border-color:var(--warm);color:#fff3cf;box-shadow:0 0 16px rgba(255,211,107,.6)}
+.lb.core{opacity:.6;font-size:12px}
+#card{position:fixed;left:34px;bottom:70px;width:380px;padding:22px 24px;border:1px solid var(--c);
+ background:rgba(3,20,34,.82);border-radius:8px;box-shadow:0 0 30px rgba(95,243,255,.25);
+ transform:translateX(-120%);transition:transform .4s cubic-bezier(.2,.9,.2,1);backdrop-filter:blur(6px)}
+#card.show{transform:none}
+#card .f{font-size:13px;letter-spacing:.2em;opacity:.7}
+#card h2{font-size:30px;margin:6px 0 10px;color:#fff;text-shadow:0 0 12px rgba(95,243,255,.8)}
+#card p{font-size:16px;line-height:1.6;color:#bdeff7}
+#card .x{position:absolute;right:14px;top:10px;font-size:26px;color:var(--c);background:none;border:0;padding:6px}
+#intro{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+ background:radial-gradient(ellipse at center,rgba(2,20,36,.55),rgba(2,8,18,.92));transition:opacity .8s}
+#intro.hide{opacity:0;pointer-events:none}
+#intro .t1{font-size:16px;letter-spacing:.5em;opacity:.7}
+#intro h1{font-size:64px;margin:18px 0 10px;color:#fff;text-shadow:0 0 24px rgba(95,243,255,.9),0 0 60px rgba(42,169,255,.6);letter-spacing:.04em}
+#intro .t2{font-size:22px;color:#bdeff7;margin-bottom:44px}
+#start{padding:18px 54px;font-size:22px;color:var(--c);background:rgba(95,243,255,.1);border:1px solid var(--c);
+ border-radius:40px;font-family:inherit;letter-spacing:.2em;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 10px rgba(95,243,255,.3)}50%{box-shadow:0 0 34px rgba(95,243,255,.8)}}
+#hint{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);font-size:14px;color:rgba(95,243,255,.65);letter-spacing:.1em;pointer-events:none}
+</style>
+</head>
+<body>
+<canvas id="gl"></canvas>
+<div id="labels"></div>
+<div id="fx"></div>
+<div class="corner a"></div><div class="corner b"></div><div class="corner c"></div><div class="corner d"></div>
+<div class="hud" id="tl">SEOBU CHURCH · HOLO MAP<b>서부교회 안내도</b></div>
+<div class="hud" id="bl">SYS ONLINE · <span id="clock"></span></div>
+<div id="floors"></div>
+<div id="card"><button class="x" id="cardX">×</button><div class="f" id="cardF"></div><h2 id="cardT"></h2><p id="cardD"></p></div>
+<div id="hint">한 손가락으로 돌리고 · 두 손가락으로 확대 · 층을 눌러 펼쳐보세요</div>
+<div id="intro"><div class="t1">WELCOME TO SEOBU CHURCH</div><h1>서부교회에 오신 것을 환영합니다</h1>
+<div class="t2">처음 오셨나요? 건물 안내를 3D로 보여드릴게요</div><button id="start">시작하기</button></div>
+
+<!--LIBS-->
+
+<script>
+/* ==== 건물 데이터 (여기만 고치면 안내도가 바뀝니다) ====
+   좌표: 건물 바닥을 위에서 본 평면, x는 -18~18(좌→우), z는 -12~12(뒤→앞). 방은 [x0,z0,x1,z1] */
+const CORE=[ {n:'엘리베이터',r:[13,-12,18,-7],core:1}, {n:'계단',r:[13,-7,18,-2],core:1} ];
+const FLOORS=[
+ {id:'1F',name:'1층',sub:'주차장',rooms:[
+   {n:'주차장',r:[-18,-12,13,12],d:'차량은 1층 주차장에 세우시면 됩니다. 주차장 옆 엘리베이터로 3층 예배당까지 바로 올라가실 수 있어요.'},
+   {n:'출입구',r:[13,4,18,12],d:'건물 출입구입니다.'}]},
+ {id:'2F',name:'2층',sub:'교육·행정',rooms:[
+   {n:'유아부실',r:[-18,-12,-8,-2],d:'유아부 아이들이 예배드리는 공간입니다.'},
+   {n:'성가대실',r:[-8,-12,0,-2],d:'성가대가 연습하고 준비하는 곳입니다.'},
+   {n:'사무실',r:[0,-12,7,-2],d:'교회 행정 업무를 보는 사무실입니다. 궁금한 점은 이곳에 문의해 주세요.'},
+   {n:'화장실',r:[7,-12,13,-7],d:'2층 화장실입니다.'},
+   {n:'청소년부실',r:[-18,2,-5,12],d:'중·고등부 청소년들이 모이는 공간입니다.'},
+   {n:'당회실',r:[-5,2,4,12],d:'당회 모임이 열리는 회의실입니다.'},
+   {n:'교역자실',r:[4,2,13,12],d:'목사님과 교역자분들이 계시는 곳입니다.'}]},
+ {id:'3F',name:'3층',sub:'예배당·로비',rooms:[
+   {n:'예배당',r:[-18,-12,6,12],h:2,warm:1,d:'주일 예배가 드려지는 본당입니다. 3층과 4층이 뚫려 있는 높은 공간이에요.'},
+   {n:'로비',r:[6,-2,18,6],d:'엘리베이터에서 내리면 바로 로비입니다. 안내를 받으실 수 있어요.'},
+   {n:'예배준비실',r:[6,-12,13,-2],d:'예배를 준비하는 공간입니다.'},
+   {n:'새가족실 1',r:[6,6,12,12],warm:1,d:'처음 오신 분들을 환영하는 새가족실입니다. 편하게 들러주세요.'},
+   {n:'새가족실 2',r:[12,6,18,12],warm:1,d:'처음 오신 분들을 환영하는 두 번째 새가족실입니다.'}]},
+ {id:'4F',name:'4층',sub:'유치부·자모실',void:[-18,-12,0,12],rooms:[
+   {n:'자모실',r:[0,-12,6,-4],d:'어린 자녀와 함께 예배를 볼 수 있는 공간입니다. 예배당이 내려다보여요.'},
+   {n:'엔지니어실',r:[0,-4,6,4],d:'예배 음향·영상·방송을 담당하는 곳입니다.'},
+   {n:'유치부실',r:[6,2,18,12],d:'유치부 아이들이 예배드리는 공간입니다.'}]},
+ {id:'5F',name:'5층',sub:'초등부·청년부',rooms:[
+   {n:'초등부실',r:[-18,-12,-2,-2],d:'초등부 아이들이 예배드리는 공간입니다.'},
+   {n:'다니엘도서관',r:[-18,2,-6,12],d:'책을 읽고 쉬어갈 수 있는 교회 도서관입니다.'},
+   {n:'다니엘실',r:[-6,2,4,12],d:'모임과 교육에 쓰이는 다니엘실입니다.'},
+   {n:'스튜디오 (청년부실)',r:[4,2,18,12],pink:1,d:'청년부 더다붓이 모이는 곳입니다. 팟캐스트 촬영도 이곳에서 해요.'}]},
+ {id:'RF',name:'옥상',sub:'Roof',roof:1,rooms:[]}
+];
+</script>
+
+<script>
+(function(){
+const H=4.2, GAP=1.6;               // 층 높이, 겹쳐 보일 때 층 사이 간격
+const C=0x5ff3ff, WARM=0xffd36b, PINK=0xff7ad9;
+const cv=document.getElementById('gl');
+const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setClearColor(0x020812,1);
+const scene=new THREE.Scene();
+scene.fog=new THREE.FogExp2(0x020812,0.008);
+const cam=new THREE.PerspectiveCamera(42,1,0.1,800);
+cam.position.set(58,46,62);
+const ctl=new THREE.OrbitControls(cam,cv);
+ctl.enableDamping=true;ctl.dampingFactor=.08;ctl.target.set(0,12,0);
+ctl.minDistance=25;ctl.maxDistance=170;ctl.maxPolarAngle=Math.PI*.49;ctl.enablePan=false;
+ctl.rotateSpeed=.7;ctl.autoRotate=true;ctl.autoRotateSpeed=.6;
+
+/* 바닥 그리드 */
+const grid=new THREE.GridHelper(220,88,0x1b6f8f,0x0b3348);grid.material.transparent=true;grid.material.opacity=.45;scene.add(grid);
+const ringG=new THREE.RingGeometry(31,31.3,96);const ring=new THREE.Mesh(ringG,new THREE.MeshBasicMaterial({color:C,transparent:true,opacity:.5,side:2}));
+ring.rotation.x=-Math.PI/2;ring.position.y=.02;scene.add(ring);
+const ring2=new THREE.Mesh(new THREE.RingGeometry(35,35.15,96),ring.material.clone());ring2.material.opacity=.25;ring2.rotation.x=-Math.PI/2;ring2.position.y=.02;scene.add(ring2);
+
+/* 공통 재질 */
+function lineMat(col,op){return new THREE.LineBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false})}
+function fillMat(col,op){const m=new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});m.userData.fill=1;return m}
+function boxAt(x0,z0,x1,z1,y0,h){const g=new THREE.BoxGeometry(x1-x0,h,z1-z0);g.translate((x0+x1)/2,y0+h/2,(z0+z1)/2);return g}
+
+/* 층 만들기 */
+const floorObjs=[];const pickables=[];
+FLOORS.forEach((F,i)=>{
+  const g=new THREE.Group();g.userData.i=i;scene.add(g);
+  const o={F,g,i,labels:[],mats:[],rooms:[],baseY:i*(H+GAP),y:i*(H+GAP),ty:i*(H+GAP),off:new THREE.Vector3(),toff:new THREE.Vector3(),vis:1,tvis:1};
+  const reg=(m,base)=>{m.userData.base=base;m.userData.fill=m.userData.fill||0;o.mats.push(m);return m};
+  // 바닥판 (빈 공간 void 제외)
+  const shp=new THREE.Shape();shp.moveTo(-18,-12);shp.lineTo(18,-12);shp.lineTo(18,12);shp.lineTo(-18,12);shp.lineTo(-18,-12);
+  if(F.void){const v=F.void;const hole=new THREE.Path();hole.moveTo(v[0]+.01,v[1]+.01);hole.lineTo(v[0]+.01,v[3]-.01);hole.lineTo(v[2],v[3]-.01);hole.lineTo(v[2],v[1]+.01);hole.lineTo(v[0]+.01,v[1]+.01);shp.holes.push(hole)}
+  const sg=new THREE.ShapeGeometry(shp);sg.rotateX(Math.PI/2);
+  const slab=new THREE.Mesh(sg,reg(fillMat(C,F.roof?.06:.10),F.roof?.06:.10));g.add(slab);
+  slab.userData.floor=i;pickables.push(slab);
+  const se=new THREE.LineSegments(new THREE.EdgesGeometry(sg),reg(lineMat(C,.9),.9));g.add(se);
+  // 바깥 외벽 윤곽 (천장 높이)
+  if(!F.roof){
+    const wall=new THREE.LineSegments(new THREE.EdgesGeometry(boxAt(-18,-12,18,12,0,H)),reg(lineMat(C,.22),.22));g.add(wall);
+    // 바닥판 모눈
+    const gg=new THREE.GridHelper(36,18,C,C);gg.scale.set(1,1,24/36);gg.material.transparent=true;gg.material.opacity=.07;gg.material.depthWrite=false;
+    gg.material.userData={};reg(gg.material,.07);gg.position.y=.01;g.add(gg);
+  }else{
+    const rail=new THREE.LineSegments(new THREE.EdgesGeometry(boxAt(-18,-12,18,12,0,1.1)),reg(lineMat(C,.5),.5));g.add(rail);
+  }
+  // 방
+  const rooms=F.roof?[]:F.rooms.concat(CORE);
+  rooms.forEach(R=>{
+    const [x0,z0,x1,z1]=R.r;const pad=.35;const hh=(R.h?H*R.h+GAP*(R.h-1):H)-.5;
+    const col=R.warm?WARM:R.pink?PINK:C;
+    const geo=boxAt(x0+pad,z0+pad,x1-pad,z1-pad,0.05,hh);
+    const fillOp=R.core?.05:.075;
+    const m=new THREE.Mesh(geo,reg(fillMat(col,fillOp),fillOp));g.add(m);
+    const e=new THREE.LineSegments(new THREE.EdgesGeometry(geo),reg(lineMat(col,R.core?.35:.75),R.core?.35:.75));g.add(e);
+    // 방 바닥 강조판
+    const pg=new THREE.PlaneGeometry(x1-x0-pad*2,z1-z0-pad*2);pg.rotateX(-Math.PI/2);pg.translate((x0+x1)/2,.06,(z0+z1)/2);
+    const pm=new THREE.Mesh(pg,reg(fillMat(col,.05),.05));g.add(pm);
+    const rm={R,m,e,pm,col,center:new THREE.Vector3((x0+x1)/2,hh*.5+.2,(z0+z1)/2),floor:i};
+    m.userData.room=rm;m.userData.floor=i;pickables.push(m);
+    o.rooms.push(rm);
+  });
+  // 예배당 십자가 (3층)
+  rooms.filter(R=>R.n==='예배당').forEach(R=>{
+    const cx=R.r[0]+1.2,cz=(R.r[1]+R.r[3])/2;const cm=reg(lineMat(WARM,1),1);
+    const cg=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(cx,1.5,cz),new THREE.Vector3(cx,7.5,cz),new THREE.Vector3(cx,5.8,cz-1.6),new THREE.Vector3(cx,5.8,cz+1.6)]);
+    g.add(new THREE.LineSegments(cg,cm));
+  });
+  floorObjs.push(o);
+});
+
+/* 떠다니는 입자 */
+const pN=420,pPos=new Float32Array(pN*3);for(let k=0;k<pN;k++){pPos[k*3]=(Math.random()-.5)*120;pPos[k*3+1]=Math.random()*50;pPos[k*3+2]=(Math.random()-.5)*120}
+const pGeo=new THREE.BufferGeometry();pGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+const pts=new THREE.Points(pGeo,new THREE.PointsMaterial({color:C,size:.25,transparent:true,opacity:.6,blending:THREE.AdditiveBlending,depthWrite:false}));scene.add(pts);
+
+/* 스캔 라인 (위아래로 훑는 빛) */
+const scan=new THREE.Mesh(new THREE.PlaneGeometry(40,28),fillMat(C,.06));scan.rotation.x=-Math.PI/2;scene.add(scan);
+const scanE=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(40,28)),lineMat(C,.5));scanE.rotation.x=-Math.PI/2;scene.add(scanE);
+
+/* 블룸 (빛 번짐) */
+let composer=null;
+try{
+  composer=new THREE.EffectComposer(renderer);
+  composer.addPass(new THREE.RenderPass(scene,cam));
+  const bloom=new THREE.UnrealBloomPass(new THREE.Vector2(1,1),.65,.5,.12);
+  composer.addPass(bloom);composer.bloom=bloom;
+}catch(err){composer=null}
+
+/* 라벨 */
+const LB=document.getElementById('labels');
+function mk(html,cls){const d=document.createElement('div');d.className='lb '+(cls||'');d.innerHTML=html;LB.appendChild(d);return d}
+floorObjs.forEach(o=>{
+  o.flabel=mk('<b>'+o.F.id+'</b>'+o.F.sub,'fl');
+  o.rooms.forEach(rm=>{rm.el=mk(rm.R.n,rm.R.core?'core':'');rm.el.style.opacity=0;
+    rm.el.addEventListener('click',ev=>{ev.stopPropagation();selectRoom(rm)})});
+});
+
+/* 층 버튼 */
+const FB=document.getElementById('floors');
+floorObjs.slice().reverse().forEach(o=>{
+  const b=document.createElement('button');b.className='fb';b.innerHTML='<b>'+o.F.id+'</b><span>'+o.F.sub.replace('Roof','옥상')+'</span>';
+  b.onclick=()=>selectFloor(o.i);o.btn=b;FB.appendChild(b);
+});
+const all=document.createElement('button');all.className='fb';all.id='allBtn';all.textContent='전체 보기';all.onclick=()=>selectFloor(-1);FB.appendChild(all);
+
+/* 상태 */
+let sel=-1,selRoom=null;
+const camGoal={pos:null,tgt:new THREE.Vector3(0,12,0),t:0};
+function flyTo(tgt,dist){
+  const dir=cam.position.clone().sub(ctl.target).normalize();
+  if(dir.y<.45){dir.y=.45;dir.normalize()}
+  camGoal.tgt=tgt.clone();camGoal.pos=tgt.clone().add(dir.multiplyScalar(dist));camGoal.t=1;
+}
+function selectFloor(i){
+  sel=i;selectRoom(null);
+  floorObjs.forEach(o=>o.btn.classList.toggle('on',o.i===i));
+  all.classList.toggle('on',i<0);
+  if(i<0){
+    floorObjs.forEach(o=>{o.ty=o.baseY;o.toff.set(0,0,0);o.tvis=1});
+    flyTo(new THREE.Vector3(0,12,0),95);ctl.autoRotate=true;return;
+  }
+  ctl.autoRotate=false;
+  // 선택된 층은 카메라 쪽으로 서랍처럼 빠져나오고, 위층은 위로 비켜 줍니다
+  const dir=new THREE.Vector3().subVectors(cam.position,ctl.target);dir.y=0;dir.normalize();
+  floorObjs.forEach(o=>{
+    if(o.i===i){o.toff.copy(dir).multiplyScalar(26);o.ty=o.baseY;o.tvis=1}
+    else{o.toff.set(0,0,0);o.ty=o.baseY+(o.i>i?7:0);o.tvis=.18}
+  });
+  const fo=floorObjs[i];
+  flyTo(new THREE.Vector3(dir.x*26,fo.baseY+2,dir.z*26),60);
+}
+const card=document.getElementById('card');
+function selectRoom(rm){
+  if(selRoom){selRoom.el.classList.remove('sel')}
+  selRoom=rm;
+  if(!rm){card.classList.remove('show');return}
+  if(sel!==rm.floor){selectFloor(rm.floor);selRoom=rm}
+  rm.el.classList.add('sel');
+  document.getElementById('cardF').textContent=FLOORS[rm.floor].name+' · '+FLOORS[rm.floor].id;
+  document.getElementById('cardT').textContent=rm.R.n;
+  document.getElementById('cardD').textContent=rm.R.d||(rm.R.core?'층과 층을 오가는 이동 통로입니다.':'');
+  card.classList.add('show');
+}
+document.getElementById('cardX').onclick=()=>selectRoom(null);
+
+/* 터치로 고르기 (드래그와 구분) */
+const ray=new THREE.Raycaster();let down=null;
+cv.addEventListener('pointerdown',e=>{down={x:e.clientX,y:e.clientY,t:performance.now()};ctl.autoRotate=false});
+cv.addEventListener('pointerup',e=>{
+  if(!down)return;const moved=Math.hypot(e.clientX-down.x,e.clientY-down.y);const quick=performance.now()-down.t<400;down=null;
+  if(moved>10||!quick)return;
+  const r=cv.getBoundingClientRect();
+  ray.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-(e.clientY-r.top)/r.height*2+1},cam);
+  const cand=pickables.filter(m=>floorObjs[m.userData.floor].vis>.5);
+  const hit=ray.intersectObjects(cand,false)[0];
+  if(!hit){return}
+  const ud=hit.object.userData;
+  if(sel===ud.floor&&ud.room)selectRoom(ud.room);
+  else selectFloor(ud.floor);
+});
+
+/* 크기 */
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();
+  if(composer){composer.setSize(w,h);composer.bloom.resolution.set(w,h)}}
+addEventListener('resize',resize);resize();
+
+/* 시작 화면 */
+document.getElementById('start').onclick=()=>{document.getElementById('intro').classList.add('hide');flyTo(new THREE.Vector3(0,12,0),95)};
+
+/* 루프 */
+const clk=document.getElementById('clock');const v=new THREE.Vector3();let last=performance.now();
+function loop(now){
+  requestAnimationFrame(loop);
+  const dt=Math.min(.05,(now-last)/1000);last=now;const k=1-Math.pow(.002,dt);
+  floorObjs.forEach(o=>{
+    o.y+=(o.ty-o.y)*k;o.off.lerp(o.toff,k);o.vis+=(o.tvis-o.vis)*k;
+    o.g.position.set(o.off.x,o.y,o.off.z);
+    const ff=sel<0?.5:1;o.mats.forEach(m=>m.opacity=m.userData.base*o.vis*(m.userData.fill?ff:1));
+  });
+  if(camGoal.t>0){
+    cam.position.lerp(camGoal.pos,k*.9);ctl.target.lerp(camGoal.tgt,k*.9);
+    if(cam.position.distanceTo(camGoal.pos)<.3)camGoal.t=0;
+  }
+  ctl.update();
+  const sy=(now/1000*4)%34;scan.position.y=sy;scanE.position.y=sy;
+  scan.material.opacity=.05*(1-sy/34);scanE.material.opacity=.45*(1-sy/34);
+  pts.rotation.y+=dt*.02;
+  ring.rotation.z+=dt*.1;
+  // 라벨 위치
+  const w=innerWidth,h=innerHeight;
+  floorObjs.forEach(o=>{
+    v.set(19.5,1,12).add(o.g.position);v.project(cam);
+    const showF=sel<0;
+    o.flabel.style.opacity=showF&&v.z<1?1:0;
+    o.flabel.style.left=((v.x+1)/2*w+90)+'px';o.flabel.style.top=((1-v.y)/2*h)+'px';
+    o.rooms.forEach(rm=>{
+      const on=o.i===sel&&o.vis>.6;
+      v.copy(rm.center).add(o.g.position);v.project(cam);
+      rm.el.style.opacity=on&&v.z<1?(rm.R.core?.6:1):0;
+      rm.el.style.pointerEvents=on?'auto':'none';
+      rm.el.style.left=((v.x+1)/2*w)+'px';rm.el.style.top=((1-v.y)/2*h)+'px';
+      const hl=selRoom===rm;
+      rm.m.material.opacity=(hl?.16:rm.m.material.userData.base*(sel<0?.5:1))*o.vis;
+    });
+  });
+  const d=new Date();clk.textContent=d.toLocaleDateString('ko-KR')+' '+d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  if(composer)composer.render();else renderer.render(scene,cam);
+}
+requestAnimationFrame(loop);
+window.__holo={selectFloor,selectRoom,floorObjs,cam,ctl};
+})();
+</script>
+</body>
+</html>

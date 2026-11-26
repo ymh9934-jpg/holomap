@@ -1,0 +1,23 @@
+plugins { id 'com.android.application' }
+android {
+    namespace = "kr.seobu.holomap"
+    compileSdk = 36
+    defaultConfig {
+        applicationId "kr.seobu.holomap"
+        minSdk 26
+        targetSdk 36
+        versionCode Integer.parseInt(System.getenv("BUILD_NUMBER") ?: "1")
+        versionName "1.0." + (System.getenv("BUILD_NUMBER") ?: "0")
+    }
+    signingConfigs {
+        mine {
+            // 서명 열쇠는 저장소에 암호화돼 있고, 비밀번호는 GitHub Secrets(SIGNING_PASSWORD)에만 있어요.
+            storeFile file('release.keystore')
+            storePassword System.getenv("SIGNING_PASSWORD")
+            keyAlias 'holomap'
+            keyPassword System.getenv("SIGNING_PASSWORD")
+        }
+    }
+    buildTypes { release { signingConfig signingConfigs.mine; minifyEnabled false } }
+    compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
+}
